@@ -23,9 +23,12 @@ import {UsuarioRepository} from '../repositories';
 export class UsuarioController {
   constructor(
     @repository(UsuarioRepository)
-    public usuarioRepository : UsuarioRepository,
-  ) {}
+    public usuarioRepository: UsuarioRepository,
+    @service(AuthService)
+    public servicioAuth: AuthService
 
+  ) { }
+  //Metodo para crear Usuarios
   @post('/usuarios')
   @response(200, {
     description: 'Usuario model instance',
