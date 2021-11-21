@@ -17,6 +17,10 @@ import {UsuarioRepository} from '../repositories';
 import {AuthService} from '../services';
 import {Credenciales} from '../models';
 import {HttpErrors} from '@loopback/rest';
+import {service} from '@loopback/core';
+import axios from 'axios';
+
+/////////////////////////////////////////////
 export class UsuarioController {
   constructor(
     @repository(UsuarioRepository)
@@ -44,7 +48,40 @@ export class UsuarioController {
     })
     usuario: Omit<Usuario, 'id'>,
   ): Promise<Usuario> {
-    return this.usuarioRepository.create(usuario);
+    //return this.usuarioRepository.create(usuario);
+    let clave = this.servicioAuth.GenerarClave();
+    let claveCifrada = this.servicioAuth.CifrarClave(clave);
+    usuario.password = claveCifrada;
+    let p = await this.usuarioRepository.create(usuario);
+    ////////////////nuevo
+    // Notificamos al usuario por correo
+    let destino = usuario.correo;
+    // Notifiamos al usuario por telefono y cambiar la url por send_sms
+    // let destino = usuario.telefono;
+
+    let asunto = 'Registro de usuario en plataforma';
+    let contenido = `Hola, ${usuario.nombre} ${usuario.apellidos} su contraseña en el portal es: ${clave}`
+    axios({
+      method: 'post',
+      url: 'http://localhost:5000/send_email', //Si quiero enviar por mensaje cambiar a send_sms
+
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      },
+      data: {
+        destino: destino,
+        asunto: asunto,
+        contenido: contenido
+      }
+    }).then((data: any) => {
+      console.log(data)
+    }).catch((err: any) => {
+      console.log(err)
+    })
+
+    return p;
+
   }
 
   @get('/usuarios/count')
