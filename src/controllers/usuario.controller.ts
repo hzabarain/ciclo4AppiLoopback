@@ -1,3 +1,4 @@
+import {service} from '@loopback/core';
 import {
   Count,
   CountSchema,
@@ -8,16 +9,13 @@ import {
 } from '@loopback/repository';
 import {
   del, get,
-  getModelSchemaRef, param, patch, post, put, requestBody,
+  getModelSchemaRef, HttpErrors, param, patch, post, put, requestBody,
   response
 } from '@loopback/rest';
-import {Usuario} from '../models';
+import axios from 'axios';
+import {Credenciales, Usuario} from '../models';
 import {UsuarioRepository} from '../repositories';
 import {AuthService} from '../services';
-import {Credenciales} from '../models';
-import {HttpErrors} from '@loopback/rest';
-import {service} from '@loopback/core';
-import axios from 'axios';
 
 /////////////////////////////////////////////
 export class UsuarioController {
@@ -62,7 +60,7 @@ export class UsuarioController {
     let contenido = `Hola, ${usuario.nombre} ${usuario.apellidos} su contraseña en el portal es: ${clave}`
     axios({
       method: 'post',
-      url: 'http://localhost:3000/send_email', //Si quiero enviar por mensaje cambiar a send_sms/send_email
+      url: 'http://localhost:5000/send_email', //Si quiero enviar por mensaje cambiar a send_sms/send_email
 
       headers: {
         'Accept': 'application/json',
